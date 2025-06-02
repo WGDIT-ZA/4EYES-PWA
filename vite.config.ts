@@ -16,6 +16,8 @@ export default defineConfig({
         short_name: '4EYES',
         description: 'Multi-window browser interface with bookmark management',
         theme_color: '#ffffff',
+        start_url: '/4EYES-PWA/',
+        scope: '/4EYES-PWA/',
         icons: [
           {
             src: 'pwa-192x192.png',
