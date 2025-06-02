@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import fs from 'fs';
 
 // Configuration for GitHub Pages deployment
 export default defineConfig({
@@ -34,7 +35,13 @@ export default defineConfig({
           }
         ]
       }
-    })
+    }),
+    {
+      name: 'create-nojekyll',
+      closeBundle() {
+        fs.writeFileSync('dist/.nojekyll', '');
+      }
+    }
   ],
   server: {
     port: 3000,
