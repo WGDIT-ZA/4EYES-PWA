@@ -1,0 +1,553 @@
+:root {
+  --primary-color: #DAA520; /* Goldenrod - darker yellow */
+  --secondary-color: #B8860B; /* Dark goldenrod for hover states */
+  --background-color: #333333; /* 20% grey */
+  --text-color: #E6E6E6; /* Light grey for text */
+  --border-color: #4D4D4D; /* Slightly lighter than background */
+  --window-bg: #262626; /* Slightly darker than background for windows */
+  --toolbar-bg: #404040; /* Slightly lighter grey for toolbars */
+  --accent-text: #FFC125; /* Bright golden yellow for important text */
+  --hover-bg: rgba(218, 165, 32, 0.2); /* Transparent goldenrod for hover effects */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background-color: var(--primary-color);
+  padding: 0.5rem 1rem;
+  color: var(--window-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-header .author {
+  font-weight: normal;
+  opacity: 0.9;
+  font-size: 0.9em;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+main {
+  flex: 1;
+  padding: 1rem;
+  max-width: 100%;
+  margin: 0 auto;
+  width: 100%;
+  height: calc(100vh - 40px); /* Subtract header height */
+}
+
+.app-layout {
+  display: flex;
+  height: 100%;
+  position: relative; /* For absolute positioning of sidebar */
+}
+
+.windows-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 0.75rem;
+}
+
+/* Slide-out sidebar */
+.sidebar {
+  position: fixed;
+  right: -250px; /* Start hidden */
+  top: 40px; /* Match header height */
+  bottom: 0;
+  width: 250px;
+  background: var(--window-bg);
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  border-left: 1px solid var(--border-color);
+  transition: right 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar.open {
+  right: 0;
+}
+
+/* Bookmark toggle button */
+.bookmark-toggle {
+  position: fixed;
+  right: 1rem;
+  top: 50px;
+  background: var(--primary-color);
+  color: var(--window-bg);
+  border: none;
+  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  transition: right 0.3s ease;
+}
+
+.bookmark-toggle.open {
+  right: 260px;
+}
+
+.bookmark-toggle:hover {
+  background: var(--secondary-color);
+}
+
+/* Layout controls */
+.layout-controls {
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--window-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 48px;
+  margin-bottom: 0.75rem;
+}
+
+.layout-controls label {
+  color: var(--accent-text);
+  font-weight: bold;
+}
+
+.layout-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.layout-button {
+  padding: 0.4rem;
+  background: var(--toolbar-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: var(--text-color);
+}
+
+.layout-button:hover {
+  background: var(--hover-bg);
+  border-color: var(--primary-color);
+}
+
+.layout-button.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--window-bg);
+}
+
+.layout-icon {
+  width: 24px;
+  height: 24px;
+  border: 2px solid currentColor;
+  position: relative;
+}
+
+.layout-icon.single {
+  background: currentColor;
+}
+
+.layout-icon.double {
+  background: currentColor;
+  mask-image: linear-gradient(to right, #000 50%, transparent 50%);
+  -webkit-mask-image: linear-gradient(to right, #000 50%, transparent 50%);
+}
+
+.layout-icon.quad {
+  background: currentColor;
+  mask-image: linear-gradient(to right, #000 50%, transparent 50%),
+              linear-gradient(to bottom, #000 50%, transparent 50%);
+  -webkit-mask-image: linear-gradient(to right, #000 50%, transparent 50%),
+                      linear-gradient(to bottom, #000 50%, transparent 50%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
+/* Grid layouts - maximize space */
+.grid-layout {
+  display: grid;
+  gap: 0.75rem;
+  flex: 1;
+  height: calc(100vh - 140px); /* Account for header and layout controls */
+  overflow: hidden;
+}
+
+.grid-layout-single {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.grid-layout-double {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr;
+}
+
+.grid-layout-quad {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+/* Maximize window space */
+.browser-window {
+  background: var(--window-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid var(--border-color);
+  position: relative;
+  min-width: 300px;
+  min-height: 200px;
+  transition: border-color 0.2s ease;
+}
+
+.browser-window.resizing {
+  transition: none;
+  user-select: none;
+}
+
+.resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nw-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--border-color);
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.resize-handle:hover {
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+.browser-window.resizing .resize-handle {
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+.browser-window:hover {
+  border-color: var(--primary-color);
+}
+
+.browser-toolbar {
+  padding: 0.5rem;
+  background-color: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  gap: 0.5rem;
+  height: 45px;
+}
+
+.url-form {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.window-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.bookmark-toggle-button {
+  padding: 0.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--primary-color);
+  transition: transform 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.bookmark-toggle-button:hover {
+  transform: scale(1.1);
+  background-color: var(--hover-bg);
+}
+
+.bookmark-toggle-button:active {
+  transform: scale(0.95);
+}
+
+.color-select {
+  padding: 0.15rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--toolbar-bg);
+  max-width: 90px;
+}
+
+.bookmark-form-inline {
+  padding: 0.5rem;
+  background-color: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bookmark-manager {
+  padding: 0.75rem;
+}
+
+.bookmark-manager h2 {
+  margin: 0 0 0.75rem 0;
+  color: var(--accent-text);
+  font-size: 1rem;
+}
+
+.bookmarks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bookmark-item {
+  background-color: var(--toolbar-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.bookmark-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.bookmark-title {
+  font-weight: bold;
+  color: var(--accent-text);
+  word-break: break-word;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.bookmark-url {
+  font-size: 0.75em;
+  color: var(--text-color);
+  word-break: break-all;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.bookmark-window {
+  font-size: 0.75em;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.bookmark-actions {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.no-bookmarks {
+  color: var(--text-color);
+  text-align: center;
+  padding: 1rem;
+  font-style: italic;
+}
+
+.bookmark-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: var(--toolbar-bg);
+}
+
+.window-select {
+  padding: 0.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background-color: var(--toolbar-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  min-width: 90px;
+}
+
+.window-select:hover {
+  border-color: var(--primary-color);
+}
+
+.window-select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.window-select option {
+  background-color: var(--window-bg);
+  color: var(--text-color);
+}
+
+.bookmark-button {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: var(--window-bg);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.bookmark-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.load-button,
+.delete-button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  min-width: 50px;
+}
+
+.load-button {
+  background-color: var(--primary-color);
+  color: var(--window-bg);
+}
+
+.load-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: var(--text-color);
+}
+
+.delete-button:hover {
+  background-color: #bd2130;
+}
+
+.browser-content {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.browser-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.loading-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bookmark-input:focus,
+.color-select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* Overlay for when sidebar is open */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.overlay.visible {
+  display: block;
+}
+
+/* Cursor styles for resize states */
+.browser-window * {
+  cursor: inherit;
+}
+
+.browser-window.resizing * {
+  cursor: nw-resize !important;
+}
+
+.browser-window input,
+.browser-window select,
+.browser-window button {
+  cursor: pointer;
+}
+
+/* Grid layout adjustments for resizable windows */
+.grid-layout > * {
+  min-width: 0;
+  min-height: 0;
+} 
