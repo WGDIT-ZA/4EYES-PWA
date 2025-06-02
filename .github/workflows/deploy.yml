@@ -44,6 +44,8 @@ jobs:
           echo "Starting build process..."
           npm run build
           echo "Build completed successfully"
+          touch dist/.nojekyll
+          echo "Created .nojekyll file"
           ls -la dist/
       
       - name: Upload artifact
