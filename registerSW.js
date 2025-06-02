@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/4EYES-PWA/sw.js', { scope: '/4EYES-PWA/' })})}
