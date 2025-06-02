@@ -61,6 +61,7 @@ const BrowserWindow = forwardRef<{ setUrl: (url: string) => void }, BrowserWindo
     const [keepAliveActive, setKeepAliveActive] = useState(false);
     const [pingLatency, setPingLatency] = useState<number | null>(null);
     const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'checking'>('disconnected');
+    const [iframeError, setIframeError] = useState<string | null>(null);
     const windowRef = useRef<HTMLDivElement>(null);
     const resizeStartPos = useRef({ x: 0, y: 0 });
     const originalSize = useRef({ width: 0, height: 0 });
@@ -78,11 +79,17 @@ const BrowserWindow = forwardRef<{ setUrl: (url: string) => void }, BrowserWindo
     const handleUrlSubmit = (e: React.FormEvent | null, bookmarkUrl?: string) => {
       if (e) e.preventDefault();
       setLoading(true);
+      setIframeError(null);
       
       const targetUrl = formatUrl(bookmarkUrl || url);
       if (iframeRef.current) {
-        iframeRef.current.src = targetUrl;
-        setUrl(targetUrl);
+        try {
+          iframeRef.current.src = targetUrl;
+          setUrl(targetUrl);
+        } catch (error) {
+          console.error('Error loading URL:', error);
+          setIframeError('This site cannot be displayed in a frame');
+        }
       }
     };
 
@@ -229,6 +236,11 @@ const BrowserWindow = forwardRef<{ setUrl: (url: string) => void }, BrowserWindo
       setShowBonjourDiscovery(false);
     };
 
+    const handleIframeError = () => {
+      setLoading(false);
+      setIframeError('This site cannot be displayed in a frame. Try opening it in a new tab.');
+    };
+
     useEffect(() => {
       return () => {
         document.removeEventListener('mousemove', handleResize);
@@ -268,6 +280,17 @@ const BrowserWindow = forwardRef<{ setUrl: (url: string) => void }, BrowserWindo
             <button type="submit" className="go-button">
               Go
             </button>
+            {url && (
+              <a 
+                href={url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="open-new-tab"
+                title="Open in new tab"
+              >
+                ↗️
+              </a>
+            )}
           </form>
           <div className="window-controls">
             <div className="keep-alive-control" style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }}>
@@ -365,23 +388,38 @@ const BrowserWindow = forwardRef<{ setUrl: (url: string) => void }, BrowserWindo
         )}
 
         <div className="browser-content">
-          <iframe
-            ref={iframeRef}
-            id={`browser-frame-${id}`}
-            src={initialUrl ? formatUrl(initialUrl) : ''}
-            title={`browser-window-${id}`}
-            className="browser-iframe"
-            onLoad={() => setLoading(false)}
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-presentation allow-top-navigation allow-top-navigation-by-user-activation allow-downloads"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; camera; microphone; geolocation"
-            loading="lazy"
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-              backgroundColor: '#fff'
-            }}
-          />
+          {iframeError ? (
+            <div className="iframe-error">
+              <p>{iframeError}</p>
+              <a 
+                href={url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="open-in-new-tab-button"
+              >
+                Open in New Tab
+              </a>
+            </div>
+          ) : (
+            <iframe
+              ref={iframeRef}
+              id={`browser-frame-${id}`}
+              src={initialUrl ? formatUrl(initialUrl) : ''}
+              title={`browser-window-${id}`}
+              className="browser-iframe"
+              onLoad={() => setLoading(false)}
+              onError={handleIframeError}
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-presentation allow-top-navigation allow-top-navigation-by-user-activation allow-downloads"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; camera; microphone; geolocation"
+              loading="lazy"
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                backgroundColor: '#fff'
+              }}
+            />
+          )}
           {loading && (
             <div className="loading-indicator" style={{
               position: 'absolute',
