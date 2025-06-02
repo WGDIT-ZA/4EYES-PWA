@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Configuration for GitHub Pages deployment
 export default defineConfig({
   base: '/4EYES-PWA/',
   plugins: [
